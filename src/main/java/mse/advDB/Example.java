@@ -3,12 +3,14 @@ package mse.advDB;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Query;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class Example {
+
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String jsonPath = System.getenv("JSON_FILE");
