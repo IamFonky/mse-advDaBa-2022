@@ -42,7 +42,14 @@ public class Example {
         driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
         driver.session().run("CREATE (n:Node)");// example of query
 
+        System.out.println("jsonPath : " + jsonPath);
+
+
+        // 2 versions un peu différentes, mais qui ne fonctionnent pas (vient peut-être d'ailleurs)
+
+        // Result test = driver.session().run("CALL apoc.load.json('file://" + jsonPath + "')" + " YIELD value RETURN value;"); //load json
         Result test = driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
+
 
         System.out.println("test : " + test);
 
@@ -51,9 +58,9 @@ public class Example {
         // MATCH (n) RETURN n 
 
         // base
-        // for (int i = 0; i < 100; i++) {
-        //     System.out.println(br.readLine());
-        // }
+        for (int i = 0; i < 100; i++) {
+            System.out.println(br.readLine());
+        }
         br.close();
         fr.close();
 
