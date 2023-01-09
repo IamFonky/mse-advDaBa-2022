@@ -51,7 +51,7 @@ public class Example {
             try {
                 System.out.println("Sleeping a bit waiting for the db");
                 Thread.yield();
-                Thread.sleep(5000); // let some time for the neo4j container to be up and
+                // Thread.sleep(5000); // let some time for the neo4j container to be up and
                 // running
 
                 driver.verifyConnectivity();
@@ -73,11 +73,30 @@ public class Example {
 
         
         Result result = driver.session().run(
-                "CALL apoc.import.json('db1.json')");
+                "CALL apoc.import.json('dbtest.json')" +
+                " YIELD value"+
+                " RETURN value");
+
+                // " UNWIND value.values AS book"+
+                // " MERGE (B:Book {title: book.title})");
+
+                // {
+                //     "name":"Michael",
+                //     "age": 41,
+                //     "children": ["Selina","Rana","Selma"]
+                //    }
+
+                // CALL apoc.load.json("file:///person.json")
+                // YIELD value
+                // MERGE (p:Person {name: value.name})
+                // SET p.age = value.age
+                // WITH p, value
+                // UNWIND value.children AS child
+                // MERGE (c:Person {name: child})
+                // MERGE (c)-[:CHILD_OF]->(p);
 
         // Print the results
         System.out.println(result.single().get(0).asMap());
-
         // for (File file : new File("files").listFiles()) {
         //     System.out.println(file.toPath().toString());
         //     Result result = driver.session().run("CALL apoc.load.json('" + file.toPath().toString() + "')"); // load
