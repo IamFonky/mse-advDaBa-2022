@@ -11,8 +11,14 @@ services:
       - $PWD/neo4j_mount/data:/data
       - $PWD/neo4j_mount/logs:/logs
       - $PWD/neo4j_mount/conf:/conf
+      - $PWD/neo4j_mount/plugins:/plugins
+      - $PWD/files:/files
     environment:
       - NEO4J_AUTH=neo4j/test
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=\[\"apoc\"\]
     deploy:
       resources:
         limits:

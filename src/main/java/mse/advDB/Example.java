@@ -5,12 +5,16 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Query;
 import org.neo4j.driver.Result;
+import org.neo4j.driver.TransactionConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Example {
     // private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024; // 3
@@ -24,7 +28,6 @@ public class Example {
         String neo4jIP;
 
         if (args.length > 0 && args[0].equals("local")) {
-            System.out.println("POUET");
             jsonPath = "./dblpExample.json";
             System.out.println("Path to JSON file is " + jsonPath);
             nbArticles = 10000;
@@ -32,7 +35,6 @@ public class Example {
             neo4jIP = "172.24.0.10";
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
         } else {
-            System.out.println("POUIT");
             jsonPath = System.getenv("JSON_FILE");
             System.out.println("Path to JSON file is " + jsonPath);
             nbArticles = Integer.max(1000, Integer.parseInt(System.getenv("MAX_NODES")));
@@ -58,23 +60,46 @@ public class Example {
             }
         } while (!connected);
 
-        for (File file : new File("files").listFiles()) {
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
+        driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
+        driver.session().run("CREATE (n:Node)");// example of query
+        driver.session().run("CREATE (n:Node)");// example of query
+        driver.session().run("CREATE (n:Node)");// example of query
+        driver.session().run("CREATE (n:Node)");// example of query
 
-            while (br.ready()) {
+        // driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
 
-                String line = br.readLine();
-                System.out.println(line);
+        Map<String, String> params = new HashMap<>();
+        params.put("file", jsonPath);
 
-                ///////////////////////
-                // Do the DB stuff here
-                ///////////////////////
+        
+        Result result = driver.session().run(
+                "CALL apoc.import.json('db1.json')");
 
-            }
-            fr.close();
-            br.close();
-        }
+        // Print the results
+        System.out.println(result.single().get(0).asMap());
+
+        // for (File file : new File("files").listFiles()) {
+        //     System.out.println(file.toPath().toString());
+        //     Result result = driver.session().run("CALL apoc.load.json('" + file.toPath().toString() + "')"); // load
+        //                                                                                                      // json
+
+        //     System.out.println(result.toString());
+
+        //     // FileReader fr = new FileReader(file);
+        //     // BufferedReader br = new BufferedReader(fr);
+
+        //     // while (br.ready()) {
+
+        //     // String line = br.readLine();
+        //     // System.out.println(line);
+        //     // ///////////////////////
+        //     // // Do the DB stuff here
+        //     // ///////////////////////
+
+        //     // }
+        //     // fr.close();
+        //     // br.close();
+        // }
 
         driver.close();
     }
