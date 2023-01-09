@@ -3,28 +3,12 @@ package mse.advDB;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Query;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.TransactionConfig;
-
-import com.google.gson.Gson;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Example {
-    private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024; 
-    // private static final long MAX_FILE_SIZE = 1024;
+    // private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 1024;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -67,10 +51,13 @@ public class Example {
 
         driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
 
-        driver.session().run("CALL apoc.load.json('db1.json')\n" +
-                " YIELD value\n" +
-                " UNWIND value AS book\n" +
-                " MERGE (b:Book {\n" +
+        for (File file : new File("files").listFiles()) {
+
+            driver.session().run("CALL apoc.load.json('" + file.getName() + "')\n" +
+                    " YIELD value\n" +
+                    " UNWIND value AS book\n" +
+                    " MERGE (b:Book {\n" +
+                    " id: book._id, \n" +
                     " title: book.title, \n" +
                     " year: book.year, \n" +
                     " n_citation: book.n_citation,\n" +
@@ -84,83 +71,41 @@ public class Example {
                     // " doi: book.doi,\n" +
                     // " pdf: book.pdf,\n" +
                     // " abstract: book.abstract\n" +
-                "})"+
-                " WITH book\n" +
-                " UNWIND book.url AS url\n" +
-                " MERGE (b)-[:LINKED]->(U:Url {value:url})"
-                );
+                    "})" +
 
-        // System.out.println(result.single().get(0).asMap());
+                    " WITH book, b\n" +
+                    " UNWIND book.authors AS author\n" +
+                    " MERGE (a:Author {" +
+                    " id:author._id," +
+                    " name:author.name" +
+                    // " org:author.org,"+
+                    // " orgid:author.orgid"+
+                    "})" +
+                    " MERGE (a)-[:WRITED]->(b)" +
 
-        // Reader reader = Files.newBufferedReader(Paths.get("dbtest.json"));
-        // Gson gson = new Gson();
-        // List<Article> articles = gson.fromJson(reader, List.class);
+                    " MERGE (v:Venue {" +
+                    " id:book.venue._id," +
+                    " type:book.venue.type," +
+                    " raw:book.venue.raw" +
+                    // " raw_zh:book.venue.raw_zh"+
+                    "})" +
+                    " MERGE (v)-[:PUBLISHED]->(b)" +
 
-        // for(Article article : articles){
-        // driver.session().run(
-        // " MERGE (B:Book {" +
-        // "title: " + article.getTitle() +
-        // "title: " + article.getTitle() +
-        // "})" +
-        // " MERGE (B:Book {title: book.title})" +
-        // " MERGE (B:Book {title: book.title})" +
-        // " MERGE (B:Book {title: book.title})"
-        // );
-        // }
+                    " WITH book, b\n" +
+                    " UNWIND book.keywords AS keyword\n" +
+                    " MERGE (k:Keyword {value:keyword})" +
+                    " MERGE (k)-[:DESCRIBE]->(b)" +
 
-        // driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
+                    " WITH book, b\n" +
+                    " UNWIND book.fos AS fos\n" +
+                    " MERGE (f:FOS {value:fos})" +
+                    " MERGE (b)-[:STUDIES]->(f)" +
 
-        // Map<String, String> params = new HashMap<>();
-        // params.put("file", jsonPath);
-
-        // Result result = driver.session().run(
-        // "CALL apoc.import.json('dbtest.json')" +
-        // " YIELD value"+
-        // " RETURN value");
-
-        // " UNWIND value.values AS book"+
-        // " MERGE (B:Book {title: book.title})");
-
-        // {
-        // "name":"Michael",
-        // "age": 41,
-        // "children": ["Selina","Rana","Selma"]
-        // }
-
-        // CALL apoc.load.json("file:///person.json")
-        // YIELD value
-        // MERGE (p:Person {name: value.name})
-        // SET p.age = value.age
-        // WITH p, value
-        // UNWIND value.children AS child
-        // MERGE (c:Person {name: child})
-        // MERGE (c)-[:CHILD_OF]->(p);
-
-        // Print the results
-        // System.out.println(result.single().get(0).asMap());
-        // for (File file : new File("files").listFiles()) {
-        // System.out.println(file.toPath().toString());
-        // Result result = driver.session().run("CALL apoc.load.json('" +
-        // file.toPath().toString() + "')"); // load
-        // // json
-
-        // System.out.println(result.toString());
-
-        // // FileReader fr = new FileReader(file);
-        // // BufferedReader br = new BufferedReader(fr);
-
-        // // while (br.ready()) {
-
-        // // String line = br.readLine();
-        // // System.out.println(line);
-        // // ///////////////////////
-        // // // Do the DB stuff here
-        // // ///////////////////////
-
-        // // }
-        // // fr.close();
-        // // br.close();
-        // }
+                    " WITH book, b\n" +
+                    " UNWIND book.url AS url\n" +
+                    " MERGE (u:Url {value:url})" +
+                    " MERGE (b)-[:LINKED]->(u)");
+        }
 
         driver.close();
     }

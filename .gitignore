@@ -2,4 +2,3 @@
 neo4j_mount/
 target/
 files/
-!files/files.md

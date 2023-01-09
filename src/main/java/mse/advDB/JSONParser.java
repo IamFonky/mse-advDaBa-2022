@@ -14,11 +14,13 @@ public class JSONParser {
         BufferedReader br = new BufferedReader(fr);
 
         int bracesCounter = 0;
-        int squareBracesCounter = 0;
         long currentFileSize = 0;
         int fileNumber = 1;
         boolean running = true;
-        // base
+
+        File file = new File("files");
+        file.delete();
+        file.mkdir();
 
         FileWriter fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
 
@@ -33,38 +35,27 @@ public class JSONParser {
             if (line.indexOf("}") > -1) {
                 bracesCounter--;
             }
-            if (line.indexOf("[") > -1) {
-                squareBracesCounter++;
-            }
-            if (line.indexOf("]") > -1) {
-                squareBracesCounter--;
-            }
 
-            // if (squareBracesCounter == 0) {
-            //     running = false;
-            // } else {
+            line = line.replaceAll("NumberInt\\((\\d+)\\)", "$1");
 
-                line = line.replaceAll("NumberInt\\((\\d+)\\)", "$1");
+            if (bracesCounter == 0 && currentFileSize >= MAX_FILE_SIZE) {
 
-                if (bracesCounter == 0 && currentFileSize >= MAX_FILE_SIZE) {
-
-                    int pos = line.lastIndexOf(",");
-                    if (pos > -1) {
-                        fw.write(line.substring(0, pos) + "\n");
-                    } else {
-                        fw.write(line + "\n");
-                    }
-                    fw.write("\n]");
-                    fileNumber++;
-                    fw.flush();
-                    fw.close();
-
-                    fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
-                    fw.write("[\n");
+                int pos = line.lastIndexOf(",");
+                if (pos > -1) {
+                    fw.write(line.substring(0, pos) + "\n");
                 } else {
                     fw.write(line + "\n");
                 }
-            // }
+                fw.write("\n]");
+                fileNumber++;
+                fw.flush();
+                fw.close();
+
+                fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
+                fw.write("[\n");
+            } else {
+                fw.write(line + "\n");
+            }
         }
 
         fw.flush();
@@ -73,7 +64,12 @@ public class JSONParser {
         if (fileNumber > 1) {
             File lastFile = new File(outputFilePath + String.valueOf(fileNumber) + ".json");
             lastFile.delete();
+            if (fileNumber > 2) {
+                lastFile = new File(outputFilePath + String.valueOf(fileNumber - 1) + ".json");
+                lastFile.delete();
+            }
         }
+
         br.close();
         fr.close();
     }
