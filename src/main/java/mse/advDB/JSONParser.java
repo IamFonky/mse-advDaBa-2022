@@ -8,15 +8,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class JSONParser {
-    public static void parse(String sourceFilePath, String outputFilePath, long MAX_FILE_SIZE)
+    public static void parse(String sourceFilePath, String outputFilePath, long MAX_FILE_SIZE, long MAX_NODES)
             throws FileNotFoundException, IOException {
         FileReader fr = new FileReader(sourceFilePath);
         BufferedReader br = new BufferedReader(fr);
 
         int bracesCounter = 0;
         long currentFileSize = 0;
+        long nbNodes = 0;
         int fileNumber = 1;
-        boolean running = true;
 
         File file = new File("files");
         file.delete();
@@ -24,11 +24,14 @@ public class JSONParser {
 
         FileWriter fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
 
-        while (br.ready() && running) {
+        while (br.ready() && nbNodes <= MAX_NODES) {
 
             String line = br.readLine();
             currentFileSize += line.getBytes().length;
 
+            if(bracesCounter == 0){
+                nbNodes++;
+            }
             if (line.indexOf("{") > -1) {
                 bracesCounter++;
             }
@@ -38,7 +41,7 @@ public class JSONParser {
 
             line = line.replaceAll("NumberInt\\((\\d+)\\)", "$1");
 
-            if (bracesCounter == 0 && currentFileSize >= MAX_FILE_SIZE) {
+            if (bracesCounter == 0 && (currentFileSize >= MAX_FILE_SIZE || nbNodes >= MAX_NODES)) {
 
                 int pos = line.lastIndexOf(",");
                 if (pos > -1) {

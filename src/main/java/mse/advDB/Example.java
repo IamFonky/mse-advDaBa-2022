@@ -32,7 +32,7 @@ public class Example {
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
         }
 
-        JSONParser.parse(jsonPath, "files/db", MAX_FILE_SIZE);
+        JSONParser.parse(jsonPath, "files/db", MAX_FILE_SIZE,nbArticles);
 
         Driver driver = GraphDatabase.driver("bolt://" + neo4jIP + ":7687", AuthTokens.basic("neo4j", "test"));
         boolean connected = false;
@@ -40,9 +40,7 @@ public class Example {
             try {
                 System.out.println("Sleeping a bit waiting for the db");
                 Thread.yield();
-                // Thread.sleep(5000); // let some time for the neo4j container to be up and
-                // running
-
+                Thread.sleep(5000); // let some time for the neo4j container to be up and
                 driver.verifyConnectivity();
                 connected = true;
             } catch (Exception e) {
@@ -61,34 +59,38 @@ public class Example {
                     " title: book.title, \n" +
                     " year: book.year, \n" +
                     " n_citation: book.n_citation,\n" +
-                    // " page_start: book.page_start,\n" +
-                    // " page_end: book.page_end,\n" +
                     " lang: book.lang\n" +
-                    // " volume: book.volume,\n" +
-                    // " issue: book.issue,\n" +
-                    // " issn: book.issn,\n" +
-                    // " isbn: book.isbn,\n" +
-                    // " doi: book.doi,\n" +
-                    // " pdf: book.pdf,\n" +
-                    // " abstract: book.abstract\n" +
-                    "})" +
+                    "})\n" +
+                    " ON CREATE SET \n" +
+                    " b.page_start = book.page_start, \n" +
+                    " b.page_end = book.page_end, \n" +
+                    " b.volume = book.volume, \n" +
+                    " b.issue = book.issue, \n" +
+                    " b.issn = book.issn, \n" +
+                    " b.isbn = book.isbn, \n" +
+                    " b.doi = book.doi, \n" +
+                    " b.pdf = book.pdf, \n" +
+                    " b.abstract = book.abstract \n" +
 
                     " WITH book, b\n" +
                     " UNWIND book.authors AS author\n" +
-                    " MERGE (a:Author {" +
-                    " id:author._id," +
-                    " name:author.name" +
-                    // " org:author.org,"+
-                    // " orgid:author.orgid"+
-                    "})" +
-                    " MERGE (a)-[:WRITED]->(b)" +
+                    " MERGE (a:Author { \n" +
+                    " id:author._id, \n" +
+                    " name:author.name \n" +
+                    "}) \n" +
+                    " ON CREATE SET \n" +
+                    " a.org = author.org, \n" +
+                    " a.orgid = author.orgid \n" +
+
+                    " MERGE (a)-[:WRITED]->(b) \n" +
 
                     " MERGE (v:Venue {" +
                     " id:book.venue._id," +
                     " type:book.venue.type," +
                     " raw:book.venue.raw" +
-                    // " raw_zh:book.venue.raw_zh"+
                     "})" +
+                    " ON CREATE SET \n" +
+                    " v.raw_zh = book.venue.raw_zh \n" +
                     " MERGE (v)-[:PUBLISHED]->(b)" +
 
                     " WITH book, b\n" +
