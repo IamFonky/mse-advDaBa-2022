@@ -1,5 +1,7 @@
 package mse.advDB;
 
+import java.util.List;
+
 public class Article {
     private String id;
     private String title;

@@ -8,7 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class JSONParser {
-    public static void parse(String sourceFilePath, String outputFilePath, long MAX_FILE_SIZE) throws FileNotFoundException, IOException{
+    public static void parse(String sourceFilePath, String outputFilePath, long MAX_FILE_SIZE)
+            throws FileNotFoundException, IOException {
         FileReader fr = new FileReader(sourceFilePath);
         BufferedReader br = new BufferedReader(fr);
 
@@ -39,9 +40,9 @@ public class JSONParser {
                 squareBracesCounter--;
             }
 
-            if (squareBracesCounter == 0) {
-                running = false;
-            } else {
+            // if (squareBracesCounter == 0) {
+            //     running = false;
+            // } else {
 
                 line = line.replaceAll("NumberInt\\((\\d+)\\)", "$1");
 
@@ -49,7 +50,7 @@ public class JSONParser {
 
                     int pos = line.lastIndexOf(",");
                     if (pos > -1) {
-                        fw.write(line.substring(0, line.lastIndexOf(",")) + "\n");
+                        fw.write(line.substring(0, pos) + "\n");
                     } else {
                         fw.write(line + "\n");
                     }
@@ -63,15 +64,16 @@ public class JSONParser {
                 } else {
                     fw.write(line + "\n");
                 }
-            }
+            // }
         }
 
         fw.flush();
         fw.close();
 
-        File lastFile = new File(outputFilePath + String.valueOf(fileNumber) + ".json");
-        lastFile.delete();
-
+        if (fileNumber > 1) {
+            File lastFile = new File(outputFilePath + String.valueOf(fileNumber) + ".json");
+            lastFile.delete();
+        }
         br.close();
         fr.close();
     }

@@ -7,19 +7,24 @@ import org.neo4j.driver.Query;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.TransactionConfig;
 
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Example {
-    // private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024; // 3
-    // Go
-    private static final long MAX_FILE_SIZE = 1024; // 3 Go
+    private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024; 
+    // private static final long MAX_FILE_SIZE = 1024;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -61,63 +66,100 @@ public class Example {
         } while (!connected);
 
         driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
-        driver.session().run("CREATE (n:Node)");// example of query
-        driver.session().run("CREATE (n:Node)");// example of query
-        driver.session().run("CREATE (n:Node)");// example of query
-        driver.session().run("CREATE (n:Node)");// example of query
+
+        driver.session().run("CALL apoc.load.json('db1.json')\n" +
+                " YIELD value\n" +
+                " UNWIND value AS book\n" +
+                " MERGE (b:Book {\n" +
+                    " title: book.title, \n" +
+                    " year: book.year, \n" +
+                    " n_citation: book.n_citation,\n" +
+                    // " page_start: book.page_start,\n" +
+                    // " page_end: book.page_end,\n" +
+                    " lang: book.lang\n" +
+                    // " volume: book.volume,\n" +
+                    // " issue: book.issue,\n" +
+                    // " issn: book.issn,\n" +
+                    // " isbn: book.isbn,\n" +
+                    // " doi: book.doi,\n" +
+                    // " pdf: book.pdf,\n" +
+                    // " abstract: book.abstract\n" +
+                "})"+
+                " WITH book\n" +
+                " UNWIND book.url AS url\n" +
+                " MERGE (b)-[:LINKED]->(U:Url {value:url})"
+                );
+
+        // System.out.println(result.single().get(0).asMap());
+
+        // Reader reader = Files.newBufferedReader(Paths.get("dbtest.json"));
+        // Gson gson = new Gson();
+        // List<Article> articles = gson.fromJson(reader, List.class);
+
+        // for(Article article : articles){
+        // driver.session().run(
+        // " MERGE (B:Book {" +
+        // "title: " + article.getTitle() +
+        // "title: " + article.getTitle() +
+        // "})" +
+        // " MERGE (B:Book {title: book.title})" +
+        // " MERGE (B:Book {title: book.title})" +
+        // " MERGE (B:Book {title: book.title})"
+        // );
+        // }
 
         // driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
 
-        Map<String, String> params = new HashMap<>();
-        params.put("file", jsonPath);
+        // Map<String, String> params = new HashMap<>();
+        // params.put("file", jsonPath);
 
-        
-        Result result = driver.session().run(
-                "CALL apoc.import.json('dbtest.json')" +
-                " YIELD value"+
-                " RETURN value");
+        // Result result = driver.session().run(
+        // "CALL apoc.import.json('dbtest.json')" +
+        // " YIELD value"+
+        // " RETURN value");
 
-                // " UNWIND value.values AS book"+
-                // " MERGE (B:Book {title: book.title})");
+        // " UNWIND value.values AS book"+
+        // " MERGE (B:Book {title: book.title})");
 
-                // {
-                //     "name":"Michael",
-                //     "age": 41,
-                //     "children": ["Selina","Rana","Selma"]
-                //    }
+        // {
+        // "name":"Michael",
+        // "age": 41,
+        // "children": ["Selina","Rana","Selma"]
+        // }
 
-                // CALL apoc.load.json("file:///person.json")
-                // YIELD value
-                // MERGE (p:Person {name: value.name})
-                // SET p.age = value.age
-                // WITH p, value
-                // UNWIND value.children AS child
-                // MERGE (c:Person {name: child})
-                // MERGE (c)-[:CHILD_OF]->(p);
+        // CALL apoc.load.json("file:///person.json")
+        // YIELD value
+        // MERGE (p:Person {name: value.name})
+        // SET p.age = value.age
+        // WITH p, value
+        // UNWIND value.children AS child
+        // MERGE (c:Person {name: child})
+        // MERGE (c)-[:CHILD_OF]->(p);
 
         // Print the results
-        System.out.println(result.single().get(0).asMap());
+        // System.out.println(result.single().get(0).asMap());
         // for (File file : new File("files").listFiles()) {
-        //     System.out.println(file.toPath().toString());
-        //     Result result = driver.session().run("CALL apoc.load.json('" + file.toPath().toString() + "')"); // load
-        //                                                                                                      // json
+        // System.out.println(file.toPath().toString());
+        // Result result = driver.session().run("CALL apoc.load.json('" +
+        // file.toPath().toString() + "')"); // load
+        // // json
 
-        //     System.out.println(result.toString());
+        // System.out.println(result.toString());
 
-        //     // FileReader fr = new FileReader(file);
-        //     // BufferedReader br = new BufferedReader(fr);
+        // // FileReader fr = new FileReader(file);
+        // // BufferedReader br = new BufferedReader(fr);
 
-        //     // while (br.ready()) {
+        // // while (br.ready()) {
 
-        //     // String line = br.readLine();
-        //     // System.out.println(line);
-        //     // ///////////////////////
-        //     // // Do the DB stuff here
-        //     // ///////////////////////
+        // // String line = br.readLine();
+        // // System.out.println(line);
+        // // ///////////////////////
+        // // // Do the DB stuff here
+        // // ///////////////////////
 
-        //     // }
-        //     // fr.close();
-        //     // br.close();
+        // // }
+        // // fr.close();
+        // // br.close();
         // }
 
         driver.close();
