@@ -58,6 +58,10 @@ public class Example {
 
         System.out.println(test.toString());
 
+        Result test = driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
+
+        System.out.println("test : " + test);
+
         // view on http://localhost:7474/browser/
         // neo4j/test
         // MATCH (n) RETURN n 
