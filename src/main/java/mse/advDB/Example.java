@@ -4,6 +4,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Query;
+import org.neo4j.driver.Result;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,14 +42,18 @@ public class Example {
         driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
         driver.session().run("CREATE (n:Node)");// example of query
 
+        Result test = driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
+
+        System.out.println("test : " + test);
+
         // view on http://localhost:7474/browser/
         // neo4j/test
         // MATCH (n) RETURN n 
 
         // base
-        for (int i = 0; i < 100; i++) {
-            System.out.println(br.readLine());
-        }
+        // for (int i = 0; i < 100; i++) {
+        //     System.out.println(br.readLine());
+        // }
         br.close();
         fr.close();
 
