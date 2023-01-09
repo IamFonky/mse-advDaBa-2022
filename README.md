@@ -16,4 +16,4 @@ La difficulté de ce projet est de traiter un fichier dont la taille dépasse la
 
 ## Résultats
 
-Nous arrivons à charger 10 000 noeuds en 36 secondes.
+Nous arrivons à charger 10 000 noeuds en 36 secondes avec 3Go de RAM.
