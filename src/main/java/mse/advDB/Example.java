@@ -7,29 +7,41 @@ import org.neo4j.driver.Query;
 import org.neo4j.driver.Result;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Example {
-
+    // private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024; // 3
+    // Go
+    private static final long MAX_FILE_SIZE = 1024; // 3 Go
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
+        String jsonPath;
+        int nbArticles;
+        String neo4jIP;
 
-        // String jsonPath = System.getenv("JSON_FILE");
-        // System.out.println("Path to JSON file is " + jsonPath);
-        // int nbArticles = Integer.max(1000, Integer.parseInt(System.getenv("MAX_NODES")));
-        // System.out.println("Number of articles to consider is " + nbArticles);
-        // String neo4jIP = System.getenv("NEO4J_IP");
-        // System.out.println("IP addresss of neo4j server is " + neo4jIP);
+        if (args.length > 0 && args[0].equals("local")) {
+            System.out.println("POUET");
+            jsonPath = "./dblpExample.json";
+            System.out.println("Path to JSON file is " + jsonPath);
+            nbArticles = 10000;
+            System.out.println("Number of articles to consider is " + nbArticles);
+            neo4jIP = "172.24.0.10";
+            System.out.println("IP addresss of neo4j server is " + neo4jIP);
+        } else {
+            System.out.println("POUIT");
+            jsonPath = System.getenv("JSON_FILE");
+            System.out.println("Path to JSON file is " + jsonPath);
+            nbArticles = Integer.max(1000, Integer.parseInt(System.getenv("MAX_NODES")));
+            System.out.println("Number of articles to consider is " + nbArticles);
+            neo4jIP = System.getenv("NEO4J_IP");
+            System.out.println("IP addresss of neo4j server is " + neo4jIP);
+        }
 
-        String jsonPath = "./dblpExample.json";
-        System.out.println("Path to JSON file is " + jsonPath);
-        int nbArticles = 10000;
-        System.out.println("Number of articles to consider is " + nbArticles);
-        String neo4jIP = "172.24.0.10";
-        System.out.println("IP addresss of neo4j server is " + neo4jIP);
-
+        JSONParser.parse(jsonPath, "files/db", MAX_FILE_SIZE);
 
         Driver driver = GraphDatabase.driver("bolt://" + neo4jIP + ":7687", AuthTokens.basic("neo4j", "test"));
         boolean connected = false;
@@ -37,41 +49,32 @@ public class Example {
             try {
                 System.out.println("Sleeping a bit waiting for the db");
                 Thread.yield();
-                Thread.sleep(5000); // let some time for the neo4j container to be up and running
+                Thread.sleep(5000); // let some time for the neo4j container to be up and
+                // running
 
                 driver.verifyConnectivity();
                 connected = true;
             } catch (Exception e) {
             }
         } while (!connected);
-        FileReader fr = new FileReader(jsonPath);
-        BufferedReader br = new BufferedReader(fr);
-        
-        
-        
-        
-        System.out.println("Reading first lines of the json file :");
 
-        // Les requêtes !!!
-        driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
-        Result test = driver.session().run("CREATE (n:Node)");// example of query
+        for (File file : new File("files").listFiles()) {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
 
-        System.out.println(test.toString());
+            while (br.ready()) {
 
-        Result test = driver.session().run("CALL apoc.load.json('" + jsonPath + "')"); //load json
+                String line = br.readLine();
+                System.out.println(line);
 
-        System.out.println("test : " + test);
+                ///////////////////////
+                // Do the DB stuff here
+                ///////////////////////
 
-        // view on http://localhost:7474/browser/
-        // neo4j/test
-        // MATCH (n) RETURN n 
-
-        // base
-        // for (int i = 0; i < 100; i++) {
-        //     System.out.println(br.readLine());
-        // }
-        br.close();
-        fr.close();
+            }
+            fr.close();
+            br.close();
+        }
 
         driver.close();
     }
