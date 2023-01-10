@@ -11,8 +11,6 @@ public class Example {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        // JSONCreator.parse("./dblpExample.json", "big", MAX_FILE_SIZE);
-
         String jsonPath;
         int nbArticles;
         String neo4jIP;
@@ -21,7 +19,7 @@ public class Example {
         if (args.length > 0 && args[0].equals("local")) {
             jsonPath = "dblpv13.json";
             System.out.println("Path to JSON file is " + jsonPath);
-            nbArticles = 5167;
+            nbArticles = 10000000;
             System.out.println("Number of articles to consider is " + nbArticles);
             neo4jIP = "172.24.0.10";
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
