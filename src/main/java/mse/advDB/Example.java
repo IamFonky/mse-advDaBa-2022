@@ -19,7 +19,7 @@ public class Example {
         if (args.length > 0 && args[0].equals("local")) {
             jsonPath = "dblpv13.json";
             System.out.println("Path to JSON file is " + jsonPath);
-            nbArticles = 10000000;
+            nbArticles = 1000;
             System.out.println("Number of articles to consider is " + nbArticles);
             neo4jIP = "172.24.0.10";
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
@@ -77,39 +77,91 @@ public class Example {
 
                     " WITH book, b\n" +
                     " UNWIND book.authors AS author\n" +
-                    " MERGE (a:Author { \n" +
-                    " id:author._id, \n" +
-                    " name:author.name \n" +
-                    "}) \n" +
+                    " MERGE (a:Author) \n" +
                     " ON CREATE SET \n" +
+                    " a.id = author._id, \n" +
+                    " a.name = author.name, \n" +
                     " a.org = author.org, \n" +
                     " a.orgid = author.orgid \n" +
-
                     " MERGE (a)-[:WRITED]->(b) \n" +
 
-                    " MERGE (v:Venue {" +
-                    " id:book.venue._id," +
-                    " type:book.venue.type," +
-                    " raw:book.venue.raw" +
-                    "})" +
+                    " MERGE (v:Venue) \n" +
                     " ON CREATE SET \n" +
+                    " v.id = book.venue._id, \n" +
+                    " v.type = book.venue.type, \n" +
+                    " v.raw = book.venue.raw, \n" +
                     " v.raw_zh = book.venue.raw_zh \n" +
-                    " MERGE (v)-[:PUBLISHED]->(b)" +
+                    " MERGE (v)-[:PUBLISHED]->(b)\n" +
 
                     " WITH book, b\n" +
                     " UNWIND book.keywords AS keyword\n" +
-                    " MERGE (k:Keyword {value:keyword})" +
-                    " MERGE (k)-[:DESCRIBE]->(b)" +
+                    " MERGE (k:Keyword {value:keyword})\n" +
+                    " MERGE (k)-[:DESCRIBE]->(b)\n" +
 
                     " WITH book, b\n" +
                     " UNWIND book.fos AS fos\n" +
-                    " MERGE (f:FOS {value:fos})" +
-                    " MERGE (b)-[:STUDIES]->(f)" +
+                    " MERGE (f:FOS {value:fos})\n" +
+                    " MERGE (b)-[:STUDIES]->(f)\n" +
 
                     " WITH book, b\n" +
                     " UNWIND book.url AS url\n" +
-                    " MERGE (u:Url {value:url})" +
+                    " MERGE (u:Url {value:url})\n" +
                     " MERGE (b)-[:LINKED]->(u)");
+
+            // driver.session().run("CALL apoc.periodic.iterate(\"" +
+            // "CALL apoc.load.json('" + file.getName() + "')\n" +
+            // " YIELD value\n" +
+            // " RETURN value)\",\"\n" +
+            // " UNWIND value AS book\n" +
+            // " MERGE (b:Book { id: book._id })\n" +
+            // " ON CREATE SET \n" +
+            // " b.title = book.title, \n" +
+            // " b.year = book.year, \n" +
+            // " b.n_citation = book.n_citation, \n" +
+            // " b.lang = book.lang, \n" +
+            // " b.page_start = book.page_start, \n" +
+            // " b.page_end = book.page_end, \n" +
+            // " b.volume = book.volume, \n" +
+            // " b.issue = book.issue, \n" +
+            // " b.issn = book.issn, \n" +
+            // " b.isbn = book.isbn, \n" +
+            // " b.doi = book.doi, \n" +
+            // " b.pdf = book.pdf, \n" +
+            // " b.abstract = book.abstract \n" +
+
+            // " WITH book, b\n" +
+            // " UNWIND book.authors AS author\n" +
+            // " MERGE (a:Author) \n" +
+            // " ON CREATE SET \n" +
+            // " a.id = author._id, \n" +
+            // " a.name = author.name, \n" +
+            // " a.org = author.org, \n" +
+            // " a.orgid = author.orgid \n" +
+            // " MERGE (a)-[:WRITED]->(b) \n" +
+
+            // " MERGE (v:Venue) \n" +
+            // " ON CREATE SET \n" +
+            // " v.id = book.venue._id, \n" +
+            // " v.type = book.venue.type, \n" +
+            // " v.raw = book.venue.raw, \n" +
+            // " v.raw_zh = book.venue.raw_zh \n" +
+            // " MERGE (v)-[:PUBLISHED]->(b)\n" +
+
+            // " WITH book, b\n" +
+            // " UNWIND book.keywords AS keyword\n" +
+            // " MERGE (k:Keyword {value:keyword})\n" +
+            // " MERGE (k)-[:DESCRIBE]->(b)\n" +
+
+            // " WITH book, b\n" +
+            // " UNWIND book.fos AS fos\n" +
+            // " MERGE (f:FOS {value:fos})\n" +
+            // " MERGE (b)-[:STUDIES]->(f)\n" +
+
+            // " WITH book, b\n" +
+            // " UNWIND book.url AS url\n" +
+            // " MERGE (u:Url {value:url})\n" +
+            // " MERGE (b)-[:LINKED]->(u)\n" +
+            // "\",{batchSize:3, parallel:true})");
         }
 
         driver.close();

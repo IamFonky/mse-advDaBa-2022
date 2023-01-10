@@ -7,8 +7,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.regex.Pattern;
 
 public class JSONParser {
+
+    private static final Pattern OPEN_BRACES_REGEX = Pattern.compile("\"(.*)\\{(.*)\"");
+    private static final Pattern CLOSE_BRACES_REGEX = Pattern.compile("\"(.*)\\}(.*)\"");
+
     public static void parse(String sourceFilePath, String outputFilePath, long MAX_FILE_SIZE, long MAX_NODES)
             throws FileNotFoundException, IOException {
         File sourceFile = new File(sourceFilePath);
@@ -17,10 +22,13 @@ public class JSONParser {
 
         int bracesCounter = 0;
         long currentFileSize = 0;
+        long totalSize = 0;
         long nbNodes = 0;
         int fileNumber = 1;
         long percent = 0;
         long lastPercent = -1;
+
+        // long test = 0;
 
         File files = new File("files");
         for (File file : files.listFiles()) {
@@ -31,34 +39,39 @@ public class JSONParser {
 
         FileWriter fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
 
+        System.out.println("Parsing json file...");
+
         while (br.ready() && nbNodes <= MAX_NODES) {
 
             String line = br.readLine();
 
-            if (line.indexOf("{") > -1) {
+            if (line.indexOf("{") > -1 && !OPEN_BRACES_REGEX.matcher(line).find()) {
                 if (bracesCounter == 0) {
                     nbNodes++;
                 }
                 bracesCounter++;
             }
-            if (line.indexOf("}") > -1) {
+            if (line.indexOf("}") > -1 && !CLOSE_BRACES_REGEX.matcher(line).find()) {
                 bracesCounter--;
             }
 
-            System.out.println(bracesCounter + " - " + nbNodes);
+            // System.out.println(bracesCounter + " - " + nbNodes);
 
             line = line.replaceAll("NumberInt\\((\\d+)\\)", "$1");
 
             currentFileSize += line.getBytes().length;
-            percent = currentFileSize * 100 / Files.size(sourceFile.toPath());
+            totalSize += line.getBytes().length;
+            percent = totalSize * 100 / Files.size(sourceFile.toPath());
 
             if (percent != lastPercent) {
                 System.out.println(
-                        currentFileSize + " / " + Files.size(sourceFile.toPath()) + " : " + percent + "% -- file #"
-                                + fileNumber + " - "
-                                + nbNodes + " - ");
+                        totalSize + " / " + Files.size(sourceFile.toPath()) + " : " + percent + "% -- file #"
+                                + fileNumber + " - node #"
+                                + nbNodes);
                 lastPercent = percent;
             }
+
+            // if((nbNodes == 17407 || nbNodes == 17408 ) && test < 400){
 
             if (bracesCounter == 0 && (currentFileSize >= MAX_FILE_SIZE || nbNodes >= MAX_NODES)) {
                 currentFileSize = 0;
@@ -79,6 +92,15 @@ public class JSONParser {
             } else {
                 fw.write(line + "\n");
             }
+
+            // System.out.println(bracesCounter + " - " + line);
+            // test++;
+            // if(test > 400){
+            // nbNodes = MAX_NODES;
+            // break;
+            // }
+            // }
+
         }
 
         fw.flush();
@@ -96,11 +118,9 @@ public class JSONParser {
         }
 
         System.out.println(
-                currentFileSize + " / " + Files.size(sourceFile.toPath()) + " : " + percent + "% -- file #"
-                        + fileNumber + " - " + MAX_FILE_SIZE + " - "
-                        + String.valueOf(currentFileSize >= MAX_FILE_SIZE)
-                        + " - " + nbNodes);
-        lastPercent = percent;
+                totalSize + " / " + Files.size(sourceFile.toPath()) + " : " + percent + "% -- file #"
+                        + fileNumber + " - node #"
+                        + nbNodes);
 
         br.close();
         fr.close();
