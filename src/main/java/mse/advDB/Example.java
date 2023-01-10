@@ -7,7 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class Example {
-    private static final long MAX_FILE_SIZE = (long) 2 * 1024 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = (long) 8 * 1024 * 1024;
+    // private static final long MAX_FILE_SIZE = (long) 2 * 1024 * 1024 * 1024;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -19,7 +20,7 @@ public class Example {
         if (args.length > 0 && args[0].equals("local")) {
             jsonPath = "dblpv13.json";
             System.out.println("Path to JSON file is " + jsonPath);
-            nbArticles = 1000;
+            nbArticles = 10000;
             System.out.println("Number of articles to consider is " + nbArticles);
             neo4jIP = "172.24.0.10";
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
@@ -110,9 +111,9 @@ public class Example {
 
             // driver.session().run("CALL apoc.periodic.iterate(\"" +
             // "CALL apoc.load.json('" + file.getName() + "')\n" +
-            // " YIELD value\n" +
-            // " RETURN value)\",\"\n" +
-            // " UNWIND value AS book\n" +
+            // " YIELD value AS data)\",\"\n" +
+            // // " YIELD value\n" +
+            // " UNWIND data AS book\n" +
             // " MERGE (b:Book { id: book._id })\n" +
             // " ON CREATE SET \n" +
             // " b.title = book.title, \n" +
@@ -161,7 +162,9 @@ public class Example {
             // " UNWIND book.url AS url\n" +
             // " MERGE (u:Url {value:url})\n" +
             // " MERGE (b)-[:LINKED]->(u)\n" +
-            // "\",{batchSize:3, parallel:true})");
+            // " YIELD value RETURN value\n" +
+            // "\",{batchSize:10, parallel:true})");
+            // // "\",\"YIELD value RETURN value\",{batchSize:10, parallel:true})");
         }
 
         driver.close();

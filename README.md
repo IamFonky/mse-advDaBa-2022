@@ -18,11 +18,14 @@ La difficulté de ce projet est de traiter un fichier dont la taille dépasse la
 
 Voici les résultats que nous avons obtenus :
 
-| Nombre de nodes | Temps [h:m:s] |
-|-----------------|:-------------:|
+| Nodes           | Temps [h:m:s] |
+|----------------:|:-------------:|
 | 1 000           |  00:00:22     |
 | 2 000           |  00:00:30     |
 | 3 000           |  00:00:55     |
 | 4 000           |  00:01:24     |
-| 5 000           |  00:00:55     |
+| 5 000           |  00:02:29     |
+| 6 000           |  00:03:10     |
+| 7 000           |  00:03:25     |
+| 8 000           |  00:aa:aa     |
 
