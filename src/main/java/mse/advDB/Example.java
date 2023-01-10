@@ -7,22 +7,25 @@ import java.io.File;
 import java.io.IOException;
 
 public class Example {
-    // private static final long MAX_FILE_SIZE = (long)2 * 1024 * 1024 * 1024;
-    private static final long MAX_FILE_SIZE = 1024;
+    private static final long MAX_FILE_SIZE = (long) 2 * 1024 * 1024 * 1024;
 
     public static void main(String[] args) throws IOException, InterruptedException {
+
+        // JSONCreator.parse("./dblpExample.json", "big", MAX_FILE_SIZE);
 
         String jsonPath;
         int nbArticles;
         String neo4jIP;
+        String filesFolder;
 
         if (args.length > 0 && args[0].equals("local")) {
-            jsonPath = "./dblpExample.json";
+            jsonPath = "dblpv13.json";
             System.out.println("Path to JSON file is " + jsonPath);
-            nbArticles = 10000;
+            nbArticles = 5167;
             System.out.println("Number of articles to consider is " + nbArticles);
             neo4jIP = "172.24.0.10";
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
+            filesFolder = "files";
         } else {
             jsonPath = System.getenv("JSON_FILE");
             System.out.println("Path to JSON file is " + jsonPath);
@@ -30,9 +33,10 @@ public class Example {
             System.out.println("Number of articles to consider is " + nbArticles);
             neo4jIP = System.getenv("NEO4J_IP");
             System.out.println("IP addresss of neo4j server is " + neo4jIP);
+            filesFolder = System.getenv("FILES_FOLDER");
         }
 
-        JSONParser.parse(jsonPath, "files/db", MAX_FILE_SIZE,nbArticles);
+        JSONParser.parse(jsonPath, filesFolder + "/db", MAX_FILE_SIZE, nbArticles);
 
         Driver driver = GraphDatabase.driver("bolt://" + neo4jIP + ":7687", AuthTokens.basic("neo4j", "test"));
         boolean connected = false;
@@ -46,22 +50,23 @@ public class Example {
             } catch (Exception e) {
             }
         } while (!connected);
+        System.out.println("Connected");
 
         driver.session().run("MATCH (n) DETACH DELETE n");// delete all nodes
 
-        for (File file : new File("files").listFiles()) {
+        driver.session().run("CALL apoc.load.directory()");
+
+        for (File file : new File(filesFolder).listFiles()) {
 
             driver.session().run("CALL apoc.load.json('" + file.getName() + "')\n" +
                     " YIELD value\n" +
                     " UNWIND value AS book\n" +
-                    " MERGE (b:Book {\n" +
-                    " id: book._id, \n" +
-                    " title: book.title, \n" +
-                    " year: book.year, \n" +
-                    " n_citation: book.n_citation,\n" +
-                    " lang: book.lang\n" +
-                    "})\n" +
+                    " MERGE (b:Book { id: book._id })\n" +
                     " ON CREATE SET \n" +
+                    " b.title = book.title, \n" +
+                    " b.year = book.year, \n" +
+                    " b.n_citation = book.n_citation, \n" +
+                    " b.lang = book.lang, \n" +
                     " b.page_start = book.page_start, \n" +
                     " b.page_end = book.page_end, \n" +
                     " b.volume = book.volume, \n" +

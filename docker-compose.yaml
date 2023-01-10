@@ -22,7 +22,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3g
+          memory: 4g
 
   app:
     image: neo4jtp:latest
@@ -31,11 +31,13 @@ services:
     networks:
       - internal
     volumes:
-      - $PWD/dblpExample.json:/file.json
+      - $PWD/dblpv13.json:/file.json
+      - $PWD/files:/files
     environment:
       - JSON_FILE=/file.json
       - MAX_NODES=10000
       - NEO4J_IP=172.24.0.10 # must be the same as above
+      - FILES_FOLDER=/files # must be the same as above
     deploy:
       resources:
         limits:
