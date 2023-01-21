@@ -60,7 +60,7 @@ public class Example {
             driver.session().run("CALL apoc.load.json('" + file.getName() + "')\n" +
                     " YIELD value\n" +
                     " UNWIND value AS book\n" +
-                    " MERGE (b:Book { id: book._id })\n" +
+                    " CREATE (b:Book { id: book._id })\n" +
                     " ON CREATE SET \n" +
                     " b.title = book.title, \n" +
                     " b.year = book.year, \n" +

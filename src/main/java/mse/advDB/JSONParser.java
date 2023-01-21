@@ -87,6 +87,11 @@ public class JSONParser {
                 fw.flush();
                 fw.close();
 
+                File lastFile = new File(outputFilePath + String.valueOf(fileNumber-1) +
+                ".json");
+                lastFile.setReadable(true, false);
+                lastFile.setWritable(true, false);
+
                 fw = new FileWriter(outputFilePath + String.valueOf(fileNumber) + ".json");
                 fw.write("[\n");
             } else {

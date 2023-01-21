@@ -6,10 +6,10 @@
 - Monaco Pierre-Benjamin
 
 ## Installation
-1. cloner le repo `git clone git@github.com:IamFonky/mse-advDaBa-2022.git`
-2. accéder au repo cloné `cd mse-advDaBa-2022`
+1. Cloner le repo `git clone git@github.com:IamFonky/mse-advDaBa-2022.git`
+2. Accéder au repo cloné `cd mse-advDaBa-2022`
 3. Placer le fichier dblpv13.json à la racine du projet
-4. lancer les deux containers `./build.sh`
+4. Lancer les deux containers `./build.sh`
 
 ## Déroulement du projet
 
@@ -34,4 +34,5 @@ Voici les résultats que nous avons obtenus :
 | 6 000           |  00:03:10     |
 | 7 000           |  00:03:25     |
 | 8 000           |  00:05:28     |
+| 10 000          |  00:05:30     |
 
