@@ -5,6 +5,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Example {
     private static final long MAX_FILE_SIZE = (long) 8 * 1024 * 1024;
@@ -55,12 +56,24 @@ public class Example {
 
         driver.session().run("CALL apoc.load.directory()");
 
-        for (File file : new File(filesFolder).listFiles()) {
+        File[] files = new File(filesFolder).listFiles();
+        Arrays.sort(files,new FileComparator());
+
+        System.out.println("Found files : ");
+        for (File file : files) {
+            System.out.println(file);
+        }
+
+        System.out.println();
+
+        for (File file : files) {
+
+            System.out.println("Loading file " + file.getName() + "...");
 
             driver.session().run("CALL apoc.load.json('" + file.getName() + "')\n" +
                     " YIELD value\n" +
                     " UNWIND value AS book\n" +
-                    " CREATE (b:Book { id: book._id })\n" +
+                    " MERGE (b:Book { id: book._id })\n" +
                     " ON CREATE SET \n" +
                     " b.title = book.title, \n" +
                     " b.year = book.year, \n" +
@@ -165,6 +178,9 @@ public class Example {
             // " YIELD value RETURN value\n" +
             // "\",{batchSize:10, parallel:true})");
             // // "\",\"YIELD value RETURN value\",{batchSize:10, parallel:true})");
+
+            System.out.println("File " + file.getName() + "loaded");
+
         }
 
         driver.close();
