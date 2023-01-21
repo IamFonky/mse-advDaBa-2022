@@ -35,7 +35,7 @@ services:
       - $PWD/files:/files
     environment:
       - JSON_FILE=/file.json
-      - MAX_NODES=1000000000
+      - MAX_NODES=10000000
       - NEO4J_IP=172.24.0.10 # must be the same as above
       - FILES_FOLDER=/files
     deploy:
