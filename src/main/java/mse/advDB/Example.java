@@ -66,12 +66,12 @@ public class Example {
 
         System.out.println();
 
-        driver.session().run("CREATE bookindex IF NOT EXISTS for (b:Book) on (b.id)");
-        driver.session().run("CREATE authorindex IF NOT EXISTS for (a:Author) on (a.id)");
-        driver.session().run("CREATE venueindex IF NOT EXISTS for (v:Venue) on (v.id)");
-        driver.session().run("CREATE keywordindex IF NOT EXISTS for (k:Keyword) on (k.value)");
-        driver.session().run("CREATE fosindex IF NOT EXISTS for (f:FOS) on (f.value)");
-        driver.session().run("CREATE urlindex IF NOT EXISTS for (u:Url) on (u.value)");
+        driver.session().run("CREATE INDEX bookindex IF NOT EXISTS for (b:Book) on (b.id)");
+        driver.session().run("CREATE INDEX authorindex IF NOT EXISTS for (a:Author) on (a.id)");
+        driver.session().run("CREATE INDEX venueindex IF NOT EXISTS for (v:Venue) on (v.id)");
+        driver.session().run("CREATE INDEX keywordindex IF NOT EXISTS for (k:Keyword) on (k.value)");
+        driver.session().run("CREATE INDEX fosindex IF NOT EXISTS for (f:FOS) on (f.value)");
+        driver.session().run("CREATE INDEX urlindex IF NOT EXISTS for (u:Url) on (u.value)");
 
         for (File file : files) {
 
