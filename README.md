@@ -20,15 +20,17 @@ Cepandant, nous avons eu des difficultés à utiliser l'outil APOC qui permet de
 
 La difficulté de ce projet est de traiter un fichier dont la taille dépasse largement la quantité de mémoire RAM mise à notre disposition. Nous avons pour cela réalisé un prétraitement qui génère des "petits" fichiers d'environ 2 Go qui tiennent donc dans la mémoire de 4 Go disponible. Nous pouvons ensuite les charger un par un dans la base de donnée.
 
+Le fichier JSON contient également des erreur et des valeurs numérique non-standard, pour palier à ce problème le gros fichier est parsé, les valeurs illisibles sont traduites et le tout est réécrit dans des fichiers plus petits de 1G au démarrage de l'app.
+
 La grande amélioration à été d'ajouter des indexes aux nodes avant l'insertion
 
 ``` java
-    driver.session().run("CREATE index for (b:Book) on (b.id)");
-    driver.session().run("CREATE index for (a:Author) on (a.id)");
-    driver.session().run("CREATE index for (v:Venue) on (v.id)");
-    driver.session().run("CREATE index for (k:Keyword) on (k.value)");
-    driver.session().run("CREATE index for (f:FOS) on (f.value)");
-    driver.session().run("CREATE index for (u:Url) on (u.value)");
+    driver.session().run("CREATE bookindex IF NOT EXISTS for (b:Book) on (b.id)");
+    driver.session().run("CREATE authorindex IF NOT EXISTS for (a:Author) on (a.id)");
+    driver.session().run("CREATE venueindex IF NOT EXISTS for (v:Venue) on (v.id)");
+    driver.session().run("CREATE keywordindex IF NOT EXISTS for (k:Keyword) on (k.value)");
+    driver.session().run("CREATE fosindex IF NOT EXISTS for (f:FOS) on (f.value)");
+    driver.session().run("CREATE urlindex IF NOT EXISTS for (u:Url) on (u.value)");
 ```
 
 ## Résultats
@@ -47,5 +49,6 @@ Voici les résultats que nous avons obtenus :
 | 8 000           |  00:05:28     |
 | 10 000          |  00:05:30     |
 | 50 000          |  00:03:18     |
+| 10⁹             |  
 
 
