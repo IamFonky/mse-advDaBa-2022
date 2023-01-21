@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Example {
-    private static final long MAX_FILE_SIZE = (long) 8 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = (long) 1 * 1024 * 1024 * 1024;
     // private static final long MAX_FILE_SIZE = (long) 2 * 1024 * 1024 * 1024;
 
     public static void main(String[] args) throws IOException, InterruptedException {

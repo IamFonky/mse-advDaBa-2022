@@ -20,6 +20,17 @@ Cepandant, nous avons eu des difficultés à utiliser l'outil APOC qui permet de
 
 La difficulté de ce projet est de traiter un fichier dont la taille dépasse largement la quantité de mémoire RAM mise à notre disposition. Nous avons pour cela réalisé un prétraitement qui génère des "petits" fichiers d'environ 2 Go qui tiennent donc dans la mémoire de 4 Go disponible. Nous pouvons ensuite les charger un par un dans la base de donnée.
 
+La grande amélioration à été d'ajouter des indexes aux nodes avant l'insertion
+
+``` java
+    driver.session().run("CREATE index for (b:Book) on (b.id)");
+    driver.session().run("CREATE index for (a:Author) on (a.id)");
+    driver.session().run("CREATE index for (v:Venue) on (v.id)");
+    driver.session().run("CREATE index for (k:Keyword) on (k.value)");
+    driver.session().run("CREATE index for (f:FOS) on (f.value)");
+    driver.session().run("CREATE index for (u:Url) on (u.value)");
+```
+
 ## Résultats
 
 Voici les résultats que nous avons obtenus :
