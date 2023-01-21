@@ -66,10 +66,18 @@ public class Example {
 
         System.out.println();
 
+        driver.session().run("CREATE index for (b:Book) on (b.id)");
+        driver.session().run("CREATE index for (a:Author) on (a.id)");
+        driver.session().run("CREATE index for (v:Venue) on (v.id)");
+        driver.session().run("CREATE index for (k:Keyword) on (k.value)");
+        driver.session().run("CREATE index for (f:FOS) on (f.value)");
+        driver.session().run("CREATE index for (u:Url) on (u.value)");
+
         for (File file : files) {
 
             System.out.println("Loading file " + file.getName() + "...");
 
+            driver.session().run("CALL db.clearQueryCaches()");
             driver.session().run("CALL apoc.load.json('" + file.getName() + "')\n" +
                     " YIELD value\n" +
                     " UNWIND value AS book\n" +
@@ -179,7 +187,7 @@ public class Example {
             // "\",{batchSize:10, parallel:true})");
             // // "\",\"YIELD value RETURN value\",{batchSize:10, parallel:true})");
 
-            System.out.println("File " + file.getName() + "loaded");
+            System.out.println("File " + file.getName() + " loaded");
 
         }
 
